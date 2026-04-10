@@ -3,8 +3,8 @@ DELIMITER $$
 DROP PROCEDURE IF EXISTS sp_registrar_usuario$$
 
 CREATE PROCEDURE sp_registrar_usuario(
-    IN p_id_rol INT,
     IN p_identificacion VARCHAR(50),
+	IN p_id_rol INT,
     IN p_nombre VARCHAR(100),
     IN p_correo VARCHAR(150),
     IN p_contrasena VARCHAR(255)
@@ -71,7 +71,7 @@ BEGIN
 
                 COMMIT;
 
-                SELECT 200 AS status, 'Usuario registrado correctamente' AS msg;
+                SELECT 201 AS status, 'Usuario registrado correctamente' AS msg;
 
             END IF;
 
