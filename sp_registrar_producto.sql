@@ -11,11 +11,14 @@ CREATE PROCEDURE sp_registrar_producto(
 	IN p_impuesto DECIMAL(5,2),
     IN p_stock INTEGER,
 	IN p_stockmin INTEGER,
-	IN p_activo TINYINT
+	IN p_activo TINYINT,
+	IN p_id_usuario INTEGER
 )
+
 BEGIN
 
     DECLARE v_existe INT DEFAULT 0;
+	DECLARE v_id_producto INT;
 
     -- Manejo de error SQL
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -26,7 +29,6 @@ BEGIN
 
     START TRANSACTION;
 
-    -- Validar identificación duplicada
     SELECT COUNT(*) INTO v_existe
     FROM productos
 	WHERE codigo = p_codigo;
@@ -59,9 +61,32 @@ BEGIN
 			p_activo
 		);
 
+		SET v_id_producto = LAST_INSERT_ID();
+
+		IF p_stock > 0 THEN
+
+            INSERT INTO movimientos_inventario (
+                id_producto,
+                id_usuario,
+                tipo,
+                cantidad,
+                descripcion,
+                fecha_creacion
+            )
+            VALUES (
+                v_id_producto,
+                p_id_usuario,
+                'ENTRADA',
+                p_stock,
+                'APERTURA DE STOCK INICIAL (REGISTRO DE PRODUCTO)',
+                NOW()
+            );
+
+        END IF;
+
 		COMMIT;
 
-		SELECT 201 AS status, 'Producto registrado correctamente' AS msg;
+		SELECT 201 AS status, 'Producto e inventario registrados correctamente.' AS msg;
 
 	END IF;
 

@@ -9,7 +9,6 @@ CREATE PROCEDURE sp_actualizar_producto(
     IN p_nombre VARCHAR(150),
 	IN p_precio DECIMAL(10,2),
 	IN p_impuesto DECIMAL(5,2),
-    IN p_stock INTEGER,
 	IN p_stockmin INTEGER,
 	IN p_activo TINYINT
 )
@@ -31,7 +30,6 @@ BEGIN
 		nombre = p_nombre,
 		precio = p_precio,
 		impuesto = p_impuesto,
-		stock = p_stock,
 		stock_minimo = p_stockmin,
 		activo = p_activo
 	WHERE codigo = p_codigo;
