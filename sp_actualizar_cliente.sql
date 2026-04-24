@@ -7,6 +7,7 @@ CREATE PROCEDURE sp_actualizar_cliente(
     IN p_nombre VARCHAR(150),
     IN p_telefono VARCHAR(20),
     IN p_correo VARCHAR(150),
+    IN p_direccion VARCHAR(255),
     IN p_activo TINYINT
 )
 BEGIN
@@ -35,6 +36,7 @@ BEGIN
         SET nombre = p_nombre,
             telefono = p_telefono,
             correo = p_correo,
+            direccion = p_direccion,
             activo = p_activo
         WHERE identificacion = p_identificacion;
 

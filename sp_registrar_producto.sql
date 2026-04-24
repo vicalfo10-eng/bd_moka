@@ -7,7 +7,7 @@ CREATE PROCEDURE sp_registrar_producto(
 	IN p_proveedor INTEGER,
 	IN p_codigo VARCHAR(50),
     IN p_nombre VARCHAR(150),
-	IN p_precio DECIMAL(10,2),
+	IN p_precio DECIMAL(12,2),
 	IN p_impuesto DECIMAL(5,2),
     IN p_stock INTEGER,
 	IN p_stockmin INTEGER,

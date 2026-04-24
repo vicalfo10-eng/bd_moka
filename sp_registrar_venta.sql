@@ -11,7 +11,7 @@ CREATE PROCEDURE sp_registrar_venta(
 BEGIN
 
     DECLARE v_id_venta INT;
-    DECLARE v_total_venta DECIMAL(10,2) DEFAULT 0;
+    DECLARE v_total_venta DECIMAL(12,2) DEFAULT 0;
     DECLARE v_productos_sin_stock TEXT;
 
     -- 1. Manejo de errores global
@@ -25,7 +25,7 @@ BEGIN
     -- 2. CALCULAR EL TOTAL DESDE EL JSON (Antes de insertar nada)
     SELECT SUM(jt.total_linea) INTO v_total_venta
     FROM JSON_TABLE(p_detalles_json, '$[*]' COLUMNS (
-        total_linea DECIMAL(10,2) PATH '$.total_linea'
+        total_linea DECIMAL(12,2) PATH '$.total_linea'
     )) AS jt;
 
     START TRANSACTION;
@@ -46,12 +46,12 @@ BEGIN
     FROM JSON_TABLE(p_detalles_json, '$[*]' COLUMNS (
         id_producto INT PATH '$.id_producto',
         cantidad INT PATH '$.cantidad',
-        precio DECIMAL(10,2) PATH '$.precio',
-        subtotal DECIMAL(10,2) PATH '$.subtotal',
+        precio DECIMAL(12,2) PATH '$.precio',
+        subtotal DECIMAL(12,2) PATH '$.subtotal',
         impuesto DECIMAL(5,2) PATH '$.impuesto',
-        total_impuesto DECIMAL(10,2) PATH '$.total_impuesto',
-        descuento DECIMAL(10,2) PATH '$.descuento',
-        total_linea DECIMAL(10,2) PATH '$.total_linea'
+        total_impuesto DECIMAL(12,2) PATH '$.total_impuesto',
+        descuento DECIMAL(12,2) PATH '$.descuento',
+        total_linea DECIMAL(12,2) PATH '$.total_linea'
     )) AS jt;
 
     -- 5. Rebajar el Stock

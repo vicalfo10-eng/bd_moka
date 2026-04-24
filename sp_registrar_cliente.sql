@@ -7,6 +7,7 @@ CREATE PROCEDURE sp_registrar_cliente(
     IN p_nombre VARCHAR(150),
 	IN p_telefono VARCHAR(20),
     IN p_correo VARCHAR(150),
+	IN p_direccion VARCHAR(255),
 	IN p_activo TINYINT
 )
 BEGIN
@@ -47,6 +48,7 @@ BEGIN
 					nombre,
 					telefono,
 					correo,
+					direccion,
 					activo
 				)
 				VALUES(
@@ -54,6 +56,7 @@ BEGIN
 					p_nombre,
 					p_telefono,
 					p_correo,
+					p_direccion,
 					p_activo
 				);
 

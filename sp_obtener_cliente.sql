@@ -9,17 +9,18 @@ BEGIN
     DECLARE v_existe INT DEFAULT 0;
 
     -- Validar si el cliente existe
-    SELECT COUNT(*) INTO v_existe 
-    FROM clientes 
+    SELECT COUNT(*) INTO v_existe
+    FROM clientes
     WHERE identificacion = p_identificacion;
 
     IF v_existe > 0 THEN
         -- Si existe, devolvemos los datos y un flag de éxito
-        SELECT 
-            identificacion, 
-            nombre, 
-            telefono, 
-            correo, 
+        SELECT
+            identificacion,
+            nombre,
+            telefono,
+            correo,
+            direccion,
             activo,
             200 AS status,
             'Cliente encontrado' AS msg,
