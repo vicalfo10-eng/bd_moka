@@ -327,3 +327,9 @@ INSERT INTO roles (nombre) VALUES ('VENDEDOR');
 -- ==========================================
 
 INSERT INTO usuarios (id_rol, identificacion, nombre, correo, contrasena, activo) VALUES (1, '206750143', 'Victor Granados', 'vicalfo10@gmail.com', '$2b$10$1JqJt8QSnWgOIcfFJ85T4.N1rUQ/KbLO58/.CwgQNlPzL8e9MWz.a', 1);
+
+-- ===========================================
+-- INSERTAR CONGIFURACIÓN DE CRÉDITOS INICIAL
+-- ===========================================
+
+INSERT INTO configuracion_creditos (nombre_plan, frecuencia_dias, cantidad_cuotas) VALUES ('Trimestral Quincenal', 15, 6);
