@@ -21,6 +21,7 @@ BEGIN
             pp.id_cxc,
             pp.numero_cuota,
             pp.monto_cuota AS amount,
+            pp.saldo_cuota AS balance,
             pp.fecha_vencimiento AS due_date,
             pp.estado AS status_text,
             200 AS status,

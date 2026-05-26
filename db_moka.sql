@@ -276,6 +276,7 @@ CREATE TABLE plan_pagos (
     id_cxc INT NOT NULL,
     numero_cuota INT NOT NULL,
     monto_cuota DECIMAL(12,2) NOT NULL,
+    saldo_cuota DECIMAL(12,2) NOT NULL,
     fecha_vencimiento DATE NOT NULL,
     estado ENUM('PENDIENTE', 'PAGADA', 'PARCIAL', 'MORA') DEFAULT 'PENDIENTE' NOT NULL,
     fecha_pago_real DATETIME NULL,
@@ -333,3 +334,4 @@ INSERT INTO usuarios (id_rol, identificacion, nombre, correo, contrasena, activo
 -- ===========================================
 
 INSERT INTO configuracion_creditos (nombre_plan, frecuencia_dias, cantidad_cuotas) VALUES ('Trimestral Quincenal', 15, 6);
+INSERT INTO configuracion_creditos (nombre_plan, frecuencia_dias, cantidad_cuotas) VALUES ('Trimestral Mensual', 30, 3);
