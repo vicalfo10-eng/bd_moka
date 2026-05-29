@@ -100,7 +100,18 @@ BEGIN
 
         COMMIT;
         
-        SELECT 1 AS ok, 200 AS status, 'Abono procesado exitosamente' AS msg, v_nuevo_saldo_cxc AS nuevo_saldo;
+        SELECT 
+            1 AS ok, 
+            201 AS status, 
+            'Abono procesado exitosamente' AS msg, 
+            v_nuevo_saldo_cxc AS nuevo_saldo,
+            -- Datos para el recibo:
+            p_id_cuota AS receipt_number,
+            v_fecha_hora_pago AS date,
+            (SELECT nombre FROM clientes WHERE id_cliente = 
+                (SELECT id_cliente FROM cuentas_cobrar WHERE id_cxc = p_id_cxc)) AS customer_name,
+            (SELECT id_venta FROM cuentas_cobrar WHERE id_cxc = p_id_cxc) AS invoice_ref;
+    
     END IF;
 
 END$$
