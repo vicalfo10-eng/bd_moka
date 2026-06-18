@@ -12,6 +12,7 @@ CREATE PROCEDURE sp_registrar_pago_cuota(
     IN p_fecha_pago DATE
 )
 BEGIN
+
     -- Variables de control
     DECLARE v_id_venta INT;
     DECLARE v_saldo_cuota_actual DECIMAL(12,2);
@@ -19,12 +20,18 @@ BEGIN
     DECLARE v_nuevo_saldo_cuota DECIMAL(12,2);
     DECLARE v_nuevo_saldo_cxc DECIMAL(12,2);
     DECLARE v_fecha_hora_pago DATETIME;
+
+    -- Margen de tolerancia para ajuste por centavos de redondeo (Menor a 1 colón)
+    DECLARE v_tolerancia_redondeo DECIMAL(5,2) DEFAULT 1.00;
     
     -- Manejo de errores
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
-        SELECT 0 AS ok, 500 AS status, 'Error crítico: La transacción ha sido revertida' AS msg;
+        SELECT
+            0 AS ok,
+            500 AS status,
+            'Error crítico: La transacción ha sido revertida' AS msg;
     END;
 
     -- Combinar fecha proporcionada con hora actual del servidor
@@ -33,19 +40,29 @@ BEGIN
     START TRANSACTION;
 
     -- 1. Bloqueo y obtención de saldos actuales
-    SELECT id_venta, saldo_pendiente INTO v_id_venta, v_saldo_actual_cxc 
-    FROM cuentas_cobrar WHERE id_cxc = p_id_cxc FOR UPDATE;
+    SELECT id_venta, saldo_pendiente
+        INTO v_id_venta, v_saldo_actual_cxc 
+    FROM cuentas_cobrar
+    WHERE id_cxc = p_id_cxc FOR UPDATE;
 
-    SELECT saldo_cuota INTO v_saldo_cuota_actual 
-    FROM plan_pagos WHERE id_cuota = p_id_cuota FOR UPDATE;
+    SELECT saldo_cuota
+        INTO v_saldo_cuota_actual 
+    FROM plan_pagos
+    WHERE id_cuota = p_id_cuota FOR UPDATE;
 
     -- 2. Validaciones de seguridad
     IF v_id_venta IS NULL THEN
         ROLLBACK;
-        SELECT 0 AS ok, 404 AS status, 'Error: Cuenta por cobrar no localizada' AS msg;
+        SELECT
+            0 AS ok,
+            404 AS status,
+            'Error: Cuenta por cobrar no localizada' AS msg;
     ELSEIF v_saldo_cuota_actual <= 0 THEN
         ROLLBACK;
-        SELECT 0 AS ok, 400 AS status, 'Error: Esta cuota ya no tiene saldo pendiente' AS msg;
+        SELECT
+            0 AS ok,
+            400 AS status,
+            'Error: Esta cuota ya no tiene saldo pendiente' AS msg;
     ELSE
 
         -- 3. Registrar el movimiento en abonos_credito
@@ -69,7 +86,7 @@ BEGIN
         -- Si el pago es mayor al saldo de la cuota, el nuevo saldo es 0
         SET v_nuevo_saldo_cuota = v_saldo_cuota_actual - p_monto_pagado;
         
-        IF v_nuevo_saldo_cuota <= 0 THEN
+        IF v_nuevo_saldo_cuota <= v_tolerancia_redondeo THEN
             UPDATE plan_pagos 
             SET saldo_cuota = 0,
                 estado = 'PAGADA',
@@ -86,7 +103,9 @@ BEGIN
         -- 5. Actualización del saldo global de la Cuenta por Cobrar
         SET v_nuevo_saldo_cxc = v_saldo_actual_cxc - p_monto_pagado;
         
-        IF v_nuevo_saldo_cxc < 0 THEN SET v_nuevo_saldo_cxc = 0; END IF;
+        IF v_nuevo_saldo_cxc < v_tolerancia_redondeo THEN
+            SET v_nuevo_saldo_cxc = 0;
+        END IF;
 
         UPDATE cuentas_cobrar 
         SET saldo_pendiente = v_nuevo_saldo_cxc,
@@ -95,7 +114,9 @@ BEGIN
 
         -- 6. Sincronización con estado de Venta
         IF v_nuevo_saldo_cxc <= 0 THEN
-            UPDATE ventas SET estado_pago = 'PAGADA' WHERE id_venta = v_id_venta;
+            UPDATE ventas
+            SET estado_pago = 'PAGADA'
+            WHERE id_venta = v_id_venta;
         END IF;
 
         COMMIT;
@@ -110,7 +131,7 @@ BEGIN
             v_fecha_hora_pago AS date,
             (SELECT nombre FROM clientes WHERE id_cliente = 
                 (SELECT id_cliente FROM cuentas_cobrar WHERE id_cxc = p_id_cxc)) AS customer_name,
-            (SELECT id_venta FROM cuentas_cobrar WHERE id_cxc = p_id_cxc) AS invoice_ref;
+            v_id_venta AS invoice_ref;
     
     END IF;
 

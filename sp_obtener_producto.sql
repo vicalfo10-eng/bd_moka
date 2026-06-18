@@ -35,7 +35,7 @@ BEGIN
         -- Si no existe, devolvemos un status 404 o informativo
         SELECT 
             404 AS status, 
-            'No se encontró ningún producto con el código' AS msg,
+            'No se encontró ningún producto con el código ingresado.' AS msg,
             0 AS ok;
     END IF;
 
