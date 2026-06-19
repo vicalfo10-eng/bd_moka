@@ -3,18 +3,12 @@ DELIMITER $$
 DROP PROCEDURE IF EXISTS sp_obtener_cliente$$
 
 CREATE PROCEDURE sp_obtener_cliente(
-    IN p_identificacion VARCHAR(50)
+    IN p_filtro VARCHAR(150)
 )
 BEGIN
-    DECLARE v_existe INT DEFAULT 0;
 
-    -- Validar si el cliente existe
-    SELECT COUNT(*) INTO v_existe
-    FROM clientes
-    WHERE identificacion = p_identificacion;
+    IF p_filtro IS NULL OR TRIM(p_filtro) = '' THEN
 
-    IF v_existe > 0 THEN
-        -- Si existe, devolvemos los datos y un flag de éxito
         SELECT
             identificacion,
             nombre,
@@ -23,16 +17,26 @@ BEGIN
             direccion,
             activo,
             200 AS status,
-            'Cliente encontrado' AS msg,
-            1 AS ok
-        FROM clientes
-        WHERE identificacion = p_identificacion;
+            'Clientes obtenidos' AS msg,
+            1 AS ok 
+        FROM clientes;
+
     ELSE
-        -- Si no existe, devolvemos un status 404 o informativo
-        SELECT 
-            404 AS status, 
-            'No se encontró ningún cliente con esa identificación' AS msg,
-            0 AS ok;
+        
+        SELECT
+            identificacion,
+            nombre,
+            telefono,
+            correo,
+            direccion,
+            activo,
+            200 AS status,
+            'Resultados obtenidos' AS msg,
+            1 AS ok 
+        FROM clientes 
+        WHERE ( p_filtro REGEXP '^[0-9]+$' AND identificacion = p_filtro )
+           OR nombre LIKE CONCAT('%', p_filtro, '%');
+
     END IF;
 
 END$$

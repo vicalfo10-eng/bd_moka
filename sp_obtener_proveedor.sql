@@ -3,36 +3,40 @@ DELIMITER $$
 DROP PROCEDURE IF EXISTS sp_obtener_proveedor$$
 
 CREATE PROCEDURE sp_obtener_proveedor(
-    IN p_identificacion VARCHAR(50)
+    IN p_filtro VARCHAR(150)
 )
 BEGIN
-    DECLARE v_existe INT DEFAULT 0;
+    
+    IF p_filtro IS NULL OR TRIM(p_filtro) = '' THEN
 
-    -- Validar si el cliente existe
-    SELECT COUNT(*) INTO v_existe 
-    FROM proveedores 
-    WHERE identificacion = p_identificacion;
-
-    IF v_existe > 0 THEN
-        -- Si existe, devolvemos los datos y un flag de éxito
-        SELECT 
-            identificacion, 
-            nombre, 
-            telefono, 
+        SELECT
+            identificacion,
+            nombre,
+            telefono,
             correo,
-			direccion,
+            direccion,
             activo,
             200 AS status,
-            'Proveedor encontrado' AS msg,
-            1 AS ok
-        FROM proveedores
-        WHERE identificacion = p_identificacion;
+            'Proveedores obtenidos' AS msg,
+            1 AS ok 
+        FROM proveedores;
+
     ELSE
-        -- Si no existe, devolvemos un status 404 o informativo
-        SELECT 
-            404 AS status, 
-            'No se encontró ningún proveedor con esa identificación' AS msg,
-            0 AS ok;
+        
+        SELECT
+            identificacion,
+            nombre,
+            telefono,
+            correo,
+            direccion,
+            activo,
+            200 AS status,
+            'Resultados obtenidos' AS msg,
+            1 AS ok 
+        FROM proveedores 
+        WHERE ( p_filtro REGEXP '^[0-9]+$' AND identificacion = p_filtro )
+           OR nombre LIKE CONCAT('%', p_filtro, '%');
+
     END IF;
 
 END$$

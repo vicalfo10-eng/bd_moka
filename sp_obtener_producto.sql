@@ -3,40 +3,48 @@ DELIMITER $$
 DROP PROCEDURE IF EXISTS sp_obtener_producto$$
 
 CREATE PROCEDURE sp_obtener_producto(
-    IN p_codigo VARCHAR(50)
+    IN p_filtro VARCHAR(150)
 )
 BEGIN
-    DECLARE v_existe INT DEFAULT 0;
+    
+    IF p_filtro IS NULL OR TRIM(p_filtro) = '' THEN
 
-    -- Validar si el cliente existe
-    SELECT COUNT(*) INTO v_existe 
-    FROM productos 
-    WHERE codigo = p_codigo;
-
-    IF v_existe > 0 THEN
-        -- Si existe, devolvemos los datos y un flag de éxito
         SELECT
-			id_producto,
-			id_categoria,
-			id_proveedor,
-			codigo,
-            nombre, 
+            id_producto,
+            id_categoria,
+            id_proveedor,
+            codigo,
+            nombre,
             precio,
-			impuesto,
+            impuesto,
             stock,
-			stock_minimo,
+            stock_minimo,
             activo,
             200 AS status,
-            'Producto encontrado' AS msg,
+            'Productos obtenidos' AS msg,
+            1 AS ok
+        FROM productos;
+
+    ELSE
+
+        SELECT
+            id_producto,
+            id_categoria,
+            id_proveedor,
+            codigo,
+            nombre,
+            precio,
+            impuesto,
+            stock,
+            stock_minimo,
+            activo,
+            200 AS status,
+            'Resultados obtenidos' AS msg,
             1 AS ok
         FROM productos
-        WHERE codigo = p_codigo;
-    ELSE
-        -- Si no existe, devolvemos un status 404 o informativo
-        SELECT 
-            404 AS status, 
-            'No se encontró ningún producto con el código ingresado.' AS msg,
-            0 AS ok;
+        WHERE ( p_filtro REGEXP '^[0-9]+$' AND codigo = p_filtro )
+           OR nombre LIKE CONCAT('%', p_filtro, '%');
+
     END IF;
 
 END$$

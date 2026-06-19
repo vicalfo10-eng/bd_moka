@@ -228,7 +228,7 @@ CREATE TABLE configuracion_creditos (
     nombre_plan VARCHAR(100) NOT NULL,
     frecuencia_dias INT NOT NULL,
     cantidad_cuotas INT NOT NULL,
-    activo TINYINT(1) DEFAULT 1,
+    activo BOOLEAN DEFAULT TRUE,
     fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
